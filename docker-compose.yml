@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: hramirezq
+      POSTGRES_PASSWORD: hramirezq
+      POSTGRES_DB: explorer_services_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+  web:
+    container_name: django
+    build:
+      context: .
+      args:
+        VIRTUAL_ENV: /opt/app/env
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/opt/app
+    depends_on:
+      - db
+
+
+
+volumes:
+  postgres_data:
+
