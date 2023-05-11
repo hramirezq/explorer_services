@@ -1,6 +1,4 @@
-from django.db import connection
-
-from explorer_services_api.type_of_service.domain.utils.cursor_to_dictionary import CursorToDictionary
+from explorer_services_api.type_of_service.infrastructure.models import TypeOfService
 
 
 class TypeOfServiceRepository:
@@ -19,30 +17,19 @@ class TypeOfServiceRepository:
 
         """
 
-        query = """
-        SELECT * FROM type_of_services t
-        INNER JOIN packages  p  on t.Id = p.type_of_service_id_id  
-        INNER JOIN deliverables d ON p.id = d."package_Id_id" 
-        WHERE t.id = {id}
-        """.format(id=type_of_service_id)
-        with connection.cursor() as cursor:
-            cursor.execute(query)
-            result_query = CursorToDictionary().run(cursor)
-
-        return result_query
+        try:
+            type_of_service = TypeOfService.objects \
+                .prefetch_related('packages', 'packages__deliverables') \
+                .get(pk=type_of_service_id)
+        except TypeOfService.DoesNotExist:
+            return None
+        return type_of_service
 
     @staticmethod
     def get_all():
         """
         This method is used to obtain all types of services
         """
-        query = """
-                SELECT * FROM type_of_services t
-                INNER JOIN packages  p  on t.Id = p.type_of_service_id_id  
-                INNER JOIN deliverables d ON p.id = d."package_Id_id" 
-                """
-        with connection.cursor() as cursor:
-            cursor.execute(query)
-            result_query = CursorToDictionary().run(cursor)
-
-        return result_query
+        return TypeOfService.objects \
+            .prefetch_related('packages', 'packages__deliverables') \
+            .all()

@@ -18,12 +18,12 @@ COPY .pip_cache /opt/app/pip_cache/
 COPY requirements.txt /opt/app/
 COPY explorer_services_api /opt/app/explorer_services_api/
 COPY tests /opt/app/tests/
+COPY manage.py /opt/app/
 
 WORKDIR /opt/app
 RUN python -m venv env
 RUN python -m pip install -r requirements.txt --cache-dir /opt/app/pip_cache
 RUN chown -R www-data:www-data /opt/app
-
 
 # Start the application
 CMD python manage.py runserver 0.0.0.0:8000
